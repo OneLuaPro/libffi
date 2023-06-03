@@ -4,7 +4,6 @@ Status
 libffi-3.4.4 was released on October 23, 2022.  Check the libffi web
 page for updates: <URL:http://sourceware.org/libffi/>.
 
-
 What is libffi?
 ===============
 
@@ -35,6 +34,35 @@ layer of a fully featured foreign function interface. A layer must
 exist above libffi that handles type conversions for values passed
 between the two languages.
 
+# Building and Installing Libffi for Lua with CMake Support
+
+## Prerequisites
+
+Libffi with CMake Support relies on an installation of [Lua with CMake Support](https://github.com/KritzelKratzel/lua#readme). The same toolchain which has been used with *Lua with CMake Support* is required. Technically, libffi does not depend on Lua, but uses the same installation directory structure.
+
+## Windows x86 Architecture
+
+Open `x86 Native Tools Command Prompt` change to source directory and run the following commands:
+
+```cmd
+mkdir build
+cd build
+cmake .. -G "Visual Studio 17 2022" -A Win32
+cmake --build . --config Release
+cmake --install . --config Release
+```
+
+## Windows x64 Architecture
+
+Open `x64 Native Tools Command Prompt` change to source directory and run the following commands:
+
+```cmd
+mkdir build
+cd build
+cmake .. -G "Visual Studio 17 2022" -A x64
+cmake --build . --config Release
+cmake --install . --config Release
+```
 
 Supported Platforms
 ===================
@@ -206,14 +234,14 @@ See the git log for details at http://github.com/libffi/libffi.
         Add support for HPPA64, and many HPPA fixes.
         Add support for ARCv3: ARC32 & ARC64.
         Many x86 Darwin fixes.
-
+    
     3.4.4 Oct-23-2022
         Important aarch64 fixes, including support for linux builds
           with Link Time Optimization (-flto).
         Fix x86 stdcall stack alignment.
         Fix x86 Windows msvc assembler compatibility.
         Fix moxie and or1k small structure args.
-
+    
     3.4.3 Sep-19-2022
         All struct args are passed by value, regardless of size, as per ABIs.
         Enable static trampolines for Cygwin.
@@ -221,7 +249,7 @@ See the git log for details at http://github.com/libffi/libffi.
         Fix x32 static trampolines.
         Fix 32-bit x86 stdcall stack corruption.
         Fix ILP32 aarch64 support.
-
+    
     3.4.2 Jun-28-2021
         Add static trampoline support for Linux on x86_64 and ARM64.
         Add support for Alibaba's CSKY architecture.
@@ -234,7 +262,7 @@ See the git log for details at http://github.com/libffi/libffi.
         Enable compatibility with MSVC runtime stack checking.
         Reject float and small integer argument in ffi_prep_cif_var().
           Callers must promote these types themselves.
-
+    
     3.3 Nov-23-2019
         Add RISC-V support.
         New API in support of GO closures.
@@ -246,10 +274,10 @@ See the git log for details at http://github.com/libffi/libffi.
         Raw java (gcj) API deprecated.
         Add pre-built PDF documentation to source distribution.
         Many new test cases and bug fixes.
-
+    
     3.2.1 Nov-12-2014
         Build fix for non-iOS AArch64 targets.
-
+    
     3.2 Nov-11-2014
         Add C99 Complex Type support (currently only supported on
           s390).
@@ -257,7 +285,7 @@ See the git log for details at http://github.com/libffi/libffi.
           Windows/Linux.
         Add OpenRISC and Cygwin-64 support.
         Bug fixes.
-
+    
     3.1 May-19-2014
         Add AArch64 (ARM64) iOS support.
         Add Nios II support.
@@ -270,7 +298,7 @@ See the git log for details at http://github.com/libffi/libffi.
           failures, and respect the $CC and $CXX environment variables.
         Archive off the manually maintained ChangeLog in favor of git
           log.
-
+    
     3.0.13 Mar-17-2013
         Add Meta support.
         Add missing Moxie bits.
@@ -280,7 +308,7 @@ See the git log for details at http://github.com/libffi/libffi.
         Fix the install dir location for some platforms when building
           with GCC (OS X, Solaris).
         Fix Cygwin regression.
-
+    
     3.0.12 Feb-11-2013
         Add Moxie support.
         Add AArch64 support.
@@ -292,7 +320,7 @@ See the git log for details at http://github.com/libffi/libffi.
         Add support for native vendor compilers on
           Solaris and AIX.
         Work around LLVM/GCC interoperability issue on x86_64.
-
+    
     3.0.11 Apr-11-2012
         Lots of build fixes.
         Add support for variadic functions (ffi_prep_cif_var).
@@ -303,7 +331,7 @@ See the git log for details at http://github.com/libffi/libffi.
         Integration with iOS' xcode build tools.
         Fix Octeon and MC68881 support.
         Fix code pessimizations.
-
+    
     3.0.10 Aug-23-2011
         Add support for Apple's iOS.
         Add support for ARM VFP ABI.
@@ -317,128 +345,128 @@ See the git log for details at http://github.com/libffi/libffi.
           Solaris compiler.
         Testsuite fixes for Tru64 Unix.
         Additional platform support.
-
+    
     3.0.9 Dec-31-2009
         Add AVR32 and win64 ports.  Add ARM softfp support.
         Many fixes for AIX, Solaris, HP-UX, *BSD.
         Several PowerPC and x86-64 bug fixes.
         Build DLL for windows.
-
+    
     3.0.8 Dec-19-2008
         Add *BSD, BeOS, and PA-Linux support.
-
+    
     3.0.7 Nov-11-2008
         Fix for ppc FreeBSD.
         (thanks to Andreas Tobler)
-
+    
     3.0.6 Jul-17-2008
         Fix for closures on sh.
         Mark the sh/sh64 stack as non-executable.
         (both thanks to Kaz Kojima)
-
+    
     3.0.5 Apr-3-2008
         Fix libffi.pc file.
         Fix #define ARM for IcedTea users.
         Fix x86 closure bug.
-
+    
     3.0.4 Feb-24-2008
         Fix x86 OpenBSD configury.
-
+    
     3.0.3 Feb-22-2008
         Enable x86 OpenBSD thanks to Thomas Heller, and
           x86-64 FreeBSD thanks to Björn König and Andreas Tobler.
         Clean up test instruction in README.
-
+    
     3.0.2 Feb-21-2008
         Improved x86 FreeBSD support.
         Thanks to Björn König.
-
+    
     3.0.1 Feb-15-2008
         Fix instruction cache flushing bug on MIPS.
         Thanks to David Daney.
-
+    
     3.0.0 Feb-15-2008
         Many changes, mostly thanks to the GCC project.
         Cygnus Solutions is now Red Hat.
-
+    
       [10 years go by...]
-
+    
     1.20 Oct-5-1998
         Raffaele Sena produces ARM port.
-
+    
     1.19 Oct-5-1998
         Fixed x86 long double and long long return support.
         m68k bug fixes from Andreas Schwab.
         Patch for DU assembler compatibility for the Alpha from Richard
           Henderson.
-
+    
     1.18 Apr-17-1998
         Bug fixes and MIPS configuration changes.
-
+    
     1.17 Feb-24-1998
         Bug fixes and m68k port from Andreas Schwab. PowerPC port from
         Geoffrey Keating. Various bug x86, Sparc and MIPS bug fixes.
-
+    
     1.16 Feb-11-1998
         Richard Henderson produces Alpha port.
-
+    
     1.15 Dec-4-1997
         Fixed an n32 ABI bug. New libtool, auto* support.
-
+    
     1.14 May-13-97
         libtool is now used to generate shared and static libraries.
         Fixed a minor portability problem reported by Russ McManus
         <mcmanr@eq.gs.com>.
-
+    
     1.13 Dec-2-1996
         Added --enable-purify-safety to keep Purify from complaining
           about certain low level code.
         Sparc fix for calling functions with < 6 args.
         Linux x86 a.out fix.
-
+    
     1.12 Nov-22-1996
         Added missing ffi_type_void, needed for supporting void return
           types. Fixed test case for non MIPS machines. Cygnus Support
           is now Cygnus Solutions.
-
+    
     1.11 Oct-30-1996
         Added notes about GNU make.
-
+    
     1.10 Oct-29-1996
         Added configuration fix for non GNU compilers.
-
+    
     1.09 Oct-29-1996
         Added --enable-debug configure switch. Clean-ups based on LCLint
         feedback. ffi_mips.h is always installed. Many configuration
         fixes. Fixed ffitest.c for sparc builds.
-
+    
     1.08 Oct-15-1996
         Fixed n32 problem. Many clean-ups.
-
+    
     1.07 Oct-14-1996
         Gordon Irlam rewrites v8.S again. Bug fixes.
-
+    
     1.06 Oct-14-1996
         Gordon Irlam improved the sparc port.
-
+    
     1.05 Oct-14-1996
         Interface changes based on feedback.
-
+    
     1.04 Oct-11-1996
         Sparc port complete (modulo struct passing bug).
-
+    
     1.03 Oct-10-1996
         Passing struct args, and returning struct values works for
         all architectures/calling conventions. Expanded tests.
-
+    
     1.02 Oct-9-1996
         Added SGI n32 support. Fixed bugs in both o32 and Linux support.
         Added "make test".
-
+    
     1.01 Oct-8-1996
         Fixed float passing bug in mips version. Restructured some
         of the code. Builds cleanly with SGI tools.
-
+    
     1.00 Oct-7-1996
         First release. No public announcement.
 
