@@ -24,22 +24,21 @@
 # ------------------------------------------------------------------------------
 # CMake for libffi
 # ------------------------------------------------------------------------------
-# Setup with Visual Studio 17 2022 generator for Win32 or x64
+# Setup with Visual Studio 17 2022 generator for x64
 # ------------------------------------------------------------------------------
 # Visual Studio is a mutlti-configuration generator
 # https://stackoverflow.com/questions/24460486/
 #
 # Basic instructions for out-of-source build
 # ------------------------------------------
-# mkdir build
-# cd build
-# cmake .. -G "Visual Studio 17 2022" -A Win32
+# mkdir build && cd build
+# cmake .. -G "Visual Studio 17 2022" -A x64
 # cmake --build . --config Release
 # cmake --install . --config Release
 # 
 # Available architectures (-A ...) are: Win32, x64
 
-cmake_minimum_required(VERSION 3.9)
+cmake_minimum_required(VERSION 3.23)
 
 # ------------------------------------------------------------------------------
 # find liblua installation and version info
