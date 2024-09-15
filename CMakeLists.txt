@@ -42,18 +42,18 @@ cmake_minimum_required(VERSION 3.23)
 
 # ------------------------------------------------------------------------------
 # find liblua installation and version info
-if(NOT LUA_HINTS)
-  if(WIN32)
-    set(LUA_HINTS "c:/Apps")
-  endif()
-endif()
-find_package(liblua REQUIRED CONFIG HINTS ${LUA_HINTS})
-if(liblua_FOUND)
-  message(STATUS "liblua install prefix : ${LIBLUA_INSTALLDIR}")
-else()
-  message(FATAL_ERROR "Unable to find liblua version ${liblua_VERSION}.")
-endif()
-set(INSTALL_DIRECTORY ${LIBLUA_INSTALLDIR})
+# if(NOT LUA_HINTS)
+#   if(WIN32)
+#     set(LUA_HINTS "c:/Apps")
+#   endif()
+# endif()
+# find_package(liblua REQUIRED CONFIG HINTS ${LUA_HINTS})
+# if(liblua_FOUND)
+#   message(STATUS "liblua install prefix : ${LIBLUA_INSTALLDIR}")
+# else()
+#   message(FATAL_ERROR "Unable to find liblua version ${liblua_VERSION}.")
+# endif()
+set(INSTALL_DIRECTORY ${CMAKE_INSTALL_PREFIX})
 
 # ------------------------------------------------------------------------------
 # Project defintion
@@ -66,8 +66,16 @@ project(libffi
 # set TARGET properly for Win32 and x64
 if(CMAKE_GENERATOR_PLATFORM STREQUAL "Win32")
   set(TARGET "X86_WIN32")
+  set(LIB_TYPE STATIC)
+  set(FFI_USE_SHARED_LIBS OFF)
+  set(BUILD_SHARED_LIBS OFF)
+  set(MSVC_OPTS /D_WINDLL /D_WIN32 /D_CRT_SECURE_NO_WARNINGS)
 elseif(CMAKE_GENERATOR_PLATFORM STREQUAL "x64")
   set(TARGET "X86_WIN64")
+  set(LIB_TYPE STATIC)
+  set(FFI_USE_SHARED_LIBS OFF)
+  set(BUILD_SHARED_LIBS OFF)
+  set(MSVC_OPTS /D_WINDLL /D_WIN32 /D_CRT_SECURE_NO_WARNINGS)
 else()
   message(FATAL_ERROR "Invalid generator platform.")
 endif()
@@ -76,7 +84,7 @@ endif()
 # For design reasons of this file CMAKE_BUILD_TYPE needs to be set from the
 # begining.
 set(CMAKE_BUILD_TYPE "Release")
-set(CMAKE_VERBOSE_MAKEFILE OFF)
+set(CMAKE_VERBOSE_MAKEFILE ON)
 
 set(CMAKE_SHARED_LIBRARY_PREFIX)
 set(CMAKE_STATIC_LIBRARY_PREFIX)
@@ -339,7 +347,8 @@ if(WIN32 OR MINGW)
     endif()
 endif()
 
-add_library(libffi ${FFI_SOURCES})
+add_library(libffi ${LIB_TYPE} ${FFI_SOURCES})
+target_compile_options(libffi PRIVATE ${MSVC_OPTS})
 
 install(TARGETS libffi
     EXPORT ${PROJECT_NAME}Targets
