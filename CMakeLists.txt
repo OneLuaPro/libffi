@@ -1,6 +1,6 @@
 # CMakeList.txt - Copyright (c) 2022 Ore Richard Muyiwa
 #                 https://github.com/blade-lang/ffi
-# Portions      - Copyright (c) 2023 Kritzel Kratzel
+# Portions      - Copyright (c) 2023-2026 The OneLuaPro project authors.
 
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -40,45 +40,58 @@
 
 cmake_minimum_required(VERSION 3.23)
 
-# ------------------------------------------------------------------------------
-# find liblua installation and version info
-# if(NOT LUA_HINTS)
-#   if(WIN32)
-#     set(LUA_HINTS "c:/Apps")
-#   endif()
-# endif()
-# find_package(liblua REQUIRED CONFIG HINTS ${LUA_HINTS})
-# if(liblua_FOUND)
-#   message(STATUS "liblua install prefix : ${LIBLUA_INSTALLDIR}")
-# else()
-#   message(FATAL_ERROR "Unable to find liblua version ${liblua_VERSION}.")
-# endif()
 set(INSTALL_DIRECTORY ${CMAKE_INSTALL_PREFIX})
+
+# ------------------------------------------------------------------------------
+# Extract version number from configure.ac
+set(CONFIGURE_AC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/configure.ac")
+if(EXISTS "${CONFIGURE_AC_PATH}")
+  file(STRINGS "${CONFIGURE_AC_PATH}" FFI_VERSION_STR_LINE REGEX "^FFI_VERSION_STRING=")
+  file(STRINGS "${CONFIGURE_AC_PATH}" FFI_VERSION_NUM_LINE REGEX "^FFI_VERSION_NUMBER=")
+  if(FFI_VERSION_STR_LINE MATCHES "FFI_VERSION_STRING=\"([^\"]+)\"")
+    set(FFI_VERSION_STRING "${CMAKE_MATCH_1}")
+    message(STATUS "FFI_VERSION_STRING = ${FFI_VERSION_STRING}")
+  else()
+    message(FATAL_ERROR "Could not read FFI_VERSION_STRING from configure.ac")
+  endif()
+  if(FFI_VERSION_NUM_LINE MATCHES "FFI_VERSION_NUMBER=([0-9]+)")
+    set(FFI_VERSION_NUMBER "${CMAKE_MATCH_1}")
+    message(STATUS "FFI_VERSION_NUMBER = ${FFI_VERSION_NUMBER}")
+  else()
+    message(FATAL_ERROR "Could not read FFI_VERSION_NUMBER from configure.ac")
+  endif()
+else()
+  message(FATAL_ERROR "Could not read version info from configure.ac")
+endif()
 
 # ------------------------------------------------------------------------------
 # Project defintion
 project(libffi
   LANGUAGES C ASM_MASM
-  VERSION 3.4.4
+  VERSION ${FFI_VERSION_STRING}
 )
 
 # ------------------------------------------------------------------------------
 # set TARGET properly for Win32 and x64
-if(CMAKE_GENERATOR_PLATFORM STREQUAL "Win32")
+if(WIN32 AND CMAKE_SIZEOF_VOID_P EQUAL 4)
   set(TARGET "X86_WIN32")
   set(LIB_TYPE STATIC)
   set(FFI_USE_SHARED_LIBS OFF)
   set(BUILD_SHARED_LIBS OFF)
-  set(MSVC_OPTS /D_WINDLL /D_WIN32 /D_CRT_SECURE_NO_WARNINGS)
-elseif(CMAKE_GENERATOR_PLATFORM STREQUAL "x64")
+  set(MSVC_DEFS _WINDLL _WIN32 _CRT_SECURE_NO_WARNINGS)
+elseif(WIN32 AND CMAKE_SIZEOF_VOID_P EQUAL 8)
   set(TARGET "X86_WIN64")
   set(LIB_TYPE STATIC)
   set(FFI_USE_SHARED_LIBS OFF)
   set(BUILD_SHARED_LIBS OFF)
-  set(MSVC_OPTS /D_WINDLL /D_WIN32 /D_CRT_SECURE_NO_WARNINGS)
+  set(MSVC_DEFS _WINDLL _WIN32 _CRT_SECURE_NO_WARNINGS)
 else()
   message(FATAL_ERROR "Invalid generator platform.")
 endif()
+if(CMAKE_C_COMPILER_ID MATCHES "IntelLLVM")
+  add_compile_options(-Wno-deprecated-declarations)
+endif()
+
 
 # ------------------------------------------------------------------------------
 # For design reasons of this file CMAKE_BUILD_TYPE needs to be set from the
@@ -134,6 +147,8 @@ endif()
 
 # config variables for ffi.h.in
 set(VERSION ${PROJECT_VERSION})
+#set(FFI_VERSION_STRING "${PROJECT_VERSION}")
+#set(FFI_VERSION_NUMBER ${PROJECT_VERSION})
 
 set(KNOWN_PROCESSORS x86 x86_64 amd64 arm arm64 i386 i686 armv7l armv7-a aarch64)
 
@@ -240,7 +255,7 @@ endif()
 
 macro(add_assembly ASMFILE)
     get_filename_component(ASMFILE_FULL "${ASMFILE}" ABSOLUTE)
-    if(MSVC)
+    if(MSVC OR CMAKE_C_COMPILER_ID MATCHES "IntelLLVM")
         if ("${TARGET}" STREQUAL "ARM_WIN64")
             set(ARCH_ASSEMBLER armasm64)
         elseif ("${TARGET}" STREQUAL "ARM_WIN32")
@@ -348,7 +363,7 @@ if(WIN32 OR MINGW)
 endif()
 
 add_library(libffi ${LIB_TYPE} ${FFI_SOURCES})
-target_compile_options(libffi PRIVATE ${MSVC_OPTS})
+target_compile_definitions(libffi PRIVATE ${MSVC_DEFS})
 
 install(TARGETS libffi
     EXPORT ${PROJECT_NAME}Targets
