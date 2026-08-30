@@ -43,23 +43,38 @@ cmake_minimum_required(VERSION 3.23)
 set(INSTALL_DIRECTORY ${CMAKE_INSTALL_PREFIX})
 
 # ------------------------------------------------------------------------------
-# Extract version number from configure.ac
+# Extract version number from AC_INIT in configure.ac
 set(CONFIGURE_AC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/configure.ac")
 if(EXISTS "${CONFIGURE_AC_PATH}")
-  file(STRINGS "${CONFIGURE_AC_PATH}" FFI_VERSION_STR_LINE REGEX "^FFI_VERSION_STRING=")
-  file(STRINGS "${CONFIGURE_AC_PATH}" FFI_VERSION_NUM_LINE REGEX "^FFI_VERSION_NUMBER=")
-  if(FFI_VERSION_STR_LINE MATCHES "FFI_VERSION_STRING=\"([^\"]+)\"")
+  # 1. Extract the line containing AC_INIT
+  file(STRINGS "${CONFIGURE_AC_PATH}" AC_INIT_LINE REGEX "^AC_INIT\\(")
+
+  # 2. Parse the version from the second argument of AC_INIT
+  # Format: AC_INIT([Name],[VERSION],[Bug-Report])
+  if(AC_INIT_LINE MATCHES "AC_INIT\\(\\[[^]]+\\],\\s*\\[([^]]+)\\]")
     set(FFI_VERSION_STRING "${CMAKE_MATCH_1}")
     message(STATUS "FFI_VERSION_STRING = ${FFI_VERSION_STRING}")
   else()
-    message(FATAL_ERROR "Could not read FFI_VERSION_STRING from configure.ac")
+    message(FATAL_ERROR "Could not parse version from AC_INIT in configure.ac")
   endif()
-  if(FFI_VERSION_NUM_LINE MATCHES "FFI_VERSION_NUMBER=([0-9]+)")
-    set(FFI_VERSION_NUMBER "${CMAKE_MATCH_1}")
-    message(STATUS "FFI_VERSION_NUMBER = ${FFI_VERSION_NUMBER}")
+
+  # 3. Split the version string into Major, Minor, and Patch (e.g., 3.8.0)
+  # Suffixes like -rc0 are automatically ignored by this regex
+  if(FFI_VERSION_STRING MATCHES "^([0-9]+)\\.([0-9]+)\\.?([0-9]+)?")
+    set(FFI_MAJOR "${CMAKE_MATCH_1}")
+    set(FFI_MINOR "${CMAKE_MATCH_2}")
+    if(CMAKE_MATCH_3)
+      set(FFI_PATCH "${CMAKE_MATCH_3}")
+    else()
+      set(FFI_PATCH "0")
+    endif()
   else()
-    message(FATAL_ERROR "Could not read FFI_VERSION_NUMBER from configure.ac")
+    message(FATAL_ERROR "FFI_VERSION_STRING '${FFI_VERSION_STRING}' is not in X.Y.Z format")
   endif()
+
+  # 4. Calculate FFI_VERSION_NUMBER: X*10000 + Y*100 + Z
+  math(EXPR FFI_VERSION_NUMBER "(${FFI_MAJOR} * 10000) + (${FFI_MINOR} * 100) + ${FFI_PATCH}")
+  message(STATUS "FFI_VERSION_NUMBER = ${FFI_VERSION_NUMBER}")
 else()
   message(FATAL_ERROR "Could not read version info from configure.ac")
 endif()
